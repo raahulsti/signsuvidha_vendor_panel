@@ -90,13 +90,13 @@ export default function Pricing() {
             { title: 'Your rate (₹/sq ft)', key: 'price', render: (_, row) => <EditablePrice initial={row.price_per_sqft} onSave={(v) => saveMaterial(row.material_id, v)} /> },
           ]} rowKey="material_id" loading={loadingM} size="small" />
         </Tabs.TabPane>
-        {/* <Tabs.TabPane tab="Bases" key="bases">
+        <Tabs.TabPane tab="Bases" key="bases">
           <Table dataSource={baseList} columns={[
             { title: 'Base', dataIndex: 'base_name', key: 'name' },
             { title: 'Product Type', dataIndex: 'product_type_name', key: 'pt' },
             { title: 'Your rate (₹/sq ft)', key: 'price', render: (_, row) => <EditablePrice initial={row.price_per_sqft} onSave={(v) => saveBase(row.base_id, v)} /> },
           ]} rowKey="base_id" loading={loadingB} size="small" />
-        </Tabs.TabPane> */}
+        </Tabs.TabPane>
         {/* <Tabs.TabPane tab="Thicknesses" key="thicknesses">
           <Table dataSource={thicknessList} columns={[
             { title: 'Thickness', dataIndex: 'thickness_name', key: 'name' },
