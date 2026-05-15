@@ -12,7 +12,7 @@ const menuItems = [
   { key: '/', icon: <DashboardOutlined />, label: <Link to="/">Dashboard</Link> },
   { key: '/profile', icon: <UserOutlined />, label: <Link to="/profile">Profile</Link> },
   { key: '/pricing', icon: <DollarOutlined />, label: <Link to="/pricing">Pricing</Link> },
-  // { key: '/orders', icon: <ShoppingOutlined />, label: <Link to="/orders">Orders</Link> },
+  { key: '/orders', icon: <ShoppingOutlined />, label: <Link to="/orders">Orders</Link> },
 ];
 
 export default function VendorLayout() {

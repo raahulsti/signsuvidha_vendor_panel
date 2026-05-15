@@ -22,6 +22,18 @@ export const vendorApi = createApi({
       query: () => '/vendor/pricing/materials',
       providesTags: ['Pricing'],
     }),
+    getMaterialStylePricing: builder.query({
+      query: () => '/vendor/pricing/material-styles',
+      providesTags: ['Pricing'],
+    }),
+    getFramePricing: builder.query({
+      query: () => '/vendor/pricing/frames',
+      providesTags: ['Pricing'],
+    }),
+    getWallpaperPricing: builder.query({
+      query: () => '/vendor/pricing/wallpapers',
+      providesTags: ['Pricing'],
+    }),
     getBasePricing: builder.query({
       query: () => '/vendor/pricing/bases',
       providesTags: ['Pricing'],
@@ -41,6 +53,30 @@ export const vendorApi = createApi({
     upsertMaterialPrice: builder.mutation({
       query: ({ materialId, price_per_sqft }) => ({
         url: `/vendor/pricing/materials/${materialId}`,
+        method: 'PUT',
+        body: { price_per_sqft },
+      }),
+      invalidatesTags: ['Pricing'],
+    }),
+    upsertMaterialStylePrice: builder.mutation({
+      query: ({ materialStyleId, price_per_sqft }) => ({
+        url: `/vendor/pricing/material-styles/${materialStyleId}`,
+        method: 'PUT',
+        body: { price_per_sqft },
+      }),
+      invalidatesTags: ['Pricing'],
+    }),
+    upsertFramePrice: builder.mutation({
+      query: ({ frameId, price_per_sqft }) => ({
+        url: `/vendor/pricing/frames/${frameId}`,
+        method: 'PUT',
+        body: { price_per_sqft },
+      }),
+      invalidatesTags: ['Pricing'],
+    }),
+    upsertWallpaperPrice: builder.mutation({
+      query: ({ wallpaperId, price_per_sqft }) => ({
+        url: `/vendor/pricing/wallpapers/${wallpaperId}`,
         method: 'PUT',
         body: { price_per_sqft },
       }),
@@ -117,11 +153,17 @@ export const {
   useUpdateProfileMutation,
   useGetDashboardStatsQuery,
   useGetMaterialPricingQuery,
+  useGetMaterialStylePricingQuery,
+  useGetFramePricingQuery,
+  useGetWallpaperPricingQuery,
   useGetBasePricingQuery,
   useGetThicknessPricingQuery,
   useGetElementPricingQuery,
   useGetFontPricingQuery,
   useUpsertMaterialPriceMutation,
+  useUpsertMaterialStylePriceMutation,
+  useUpsertFramePriceMutation,
+  useUpsertWallpaperPriceMutation,
   useUpsertBasePriceMutation,
   useUpsertThicknessPriceMutation,
   useUpsertElementPriceMutation,

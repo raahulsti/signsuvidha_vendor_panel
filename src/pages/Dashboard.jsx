@@ -17,14 +17,14 @@ export default function Dashboard() {
         <Col xs={24} sm={8}><Card><Statistic title="Revenue (₹)" value={Number(stats.total_revenue ?? 0).toLocaleString()} prefix={<DollarOutlined />} /></Card></Col>
         <Col xs={24} sm={8}><Card><Statistic title="Pending" value={stats.pending_orders ?? 0} prefix={<ClockCircleOutlined />} /></Card></Col>
       </Row>
-      {/* <Card title="Recent Orders">
+      <Card title="Recent Orders">
         <Table dataSource={recentOrders} columns={[
           { title: 'Order #', dataIndex: 'order_number', key: 'order_number' },
           { title: 'Amount', dataIndex: 'total_amount', key: 'total_amount', render: (v) => `₹${Number(v || 0).toFixed(2)}` },
           { title: 'Status', dataIndex: 'status', key: 'status' },
           { title: 'Date', dataIndex: 'created_at', key: 'created_at', render: (d) => d ? new Date(d).toLocaleDateString() : '-' },
         ]} rowKey="id" pagination={false} size="small" />
-      </Card> */}
+      </Card>
     </>
   );
 }

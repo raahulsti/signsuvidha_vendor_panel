@@ -2,12 +2,18 @@ import { useState } from 'react';
 import { Tabs, Table, InputNumber, Button, message, Space, Select } from 'antd';
 import {
   useGetMaterialPricingQuery,
+  useGetMaterialStylePricingQuery,
+  useGetFramePricingQuery,
+  useGetWallpaperPricingQuery,
   useGetBasePricingQuery,
   useGetThicknessPricingQuery,
   useGetElementPricingQuery,
   useGetFontPricingQuery,
   useGetIlluminationPricingQuery,
   useUpsertMaterialPriceMutation,
+  useUpsertMaterialStylePriceMutation,
+  useUpsertFramePriceMutation,
+  useUpsertWallpaperPriceMutation,
   useUpsertBasePriceMutation,
   useUpsertThicknessPriceMutation,
   useUpsertElementPriceMutation,
@@ -30,6 +36,11 @@ export default function Pricing() {
   const [fontProductTypeFilter, setFontProductTypeFilter] = useState();
   const [illumProductTypeFilter, setIllumProductTypeFilter] = useState();
   const { data: materials = [], isLoading: loadingM } = useGetMaterialPricingQuery(undefined, { skip: activeTab !== 'materials' });
+  const { data: materialStylesData = [], isLoading: loadingMS } = useGetMaterialStylePricingQuery(undefined, {
+    skip: activeTab !== 'material-styles',
+  });
+  const { data: framesData = [], isLoading: loadingFr } = useGetFramePricingQuery(undefined, { skip: activeTab !== 'frames' });
+  const { data: wallpapersData = [], isLoading: loadingWp } = useGetWallpaperPricingQuery(undefined, { skip: activeTab !== 'wallpapers' });
   const { data: basesData = [], isLoading: loadingB } = useGetBasePricingQuery(undefined, { skip: activeTab !== 'bases' });
   const { data: thicknessesData = [], isLoading: loadingT } = useGetThicknessPricingQuery(undefined, { skip: activeTab !== 'thicknesses' });
   const { data: elements = [], isLoading: loadingE } = useGetElementPricingQuery(undefined, { skip: activeTab !== 'elements' });
@@ -42,6 +53,9 @@ export default function Pricing() {
     { skip: activeTab !== 'illumination' }
   );
   const [upsertMaterial] = useUpsertMaterialPriceMutation();
+  const [upsertMaterialStyle] = useUpsertMaterialStylePriceMutation();
+  const [upsertFrame] = useUpsertFramePriceMutation();
+  const [upsertWallpaper] = useUpsertWallpaperPriceMutation();
   const [upsertBase] = useUpsertBasePriceMutation();
   const [upsertThickness] = useUpsertThicknessPriceMutation();
   const [upsertElement] = useUpsertElementPriceMutation();
@@ -49,6 +63,9 @@ export default function Pricing() {
   const [upsertIllum] = useUpsertIlluminationPriceMutation();
 
   const matList = Array.isArray(materials) ? materials : materials?.data ?? [];
+  const materialStyleList = Array.isArray(materialStylesData) ? materialStylesData : materialStylesData?.data ?? [];
+  const frameList = Array.isArray(framesData) ? framesData : framesData?.data ?? [];
+  const wallpaperList = Array.isArray(wallpapersData) ? wallpapersData : wallpapersData?.data ?? [];
   const baseList = Array.isArray(basesData) ? basesData : basesData?.data ?? [];
   const thicknessList = Array.isArray(thicknessesData) ? thicknessesData : thicknessesData?.data ?? [];
   const elList = Array.isArray(elements) ? elements : elements?.data ?? [];
@@ -56,6 +73,14 @@ export default function Pricing() {
   const illumList = Array.isArray(illum) ? illum : illum?.data ?? [];
 
   const saveMaterial = (materialId, price) => upsertMaterial({ materialId, price_per_sqft: price }).then(() => message.success('Saved')).catch(() => message.error('Failed'));
+  const saveMaterialStyle = (materialStyleId, price) =>
+    upsertMaterialStyle({ materialStyleId, price_per_sqft: price })
+      .then(() => message.success('Saved'))
+      .catch(() => message.error('Failed'));
+  const saveFrame = (frameId, price) =>
+    upsertFrame({ frameId, price_per_sqft: price }).then(() => message.success('Saved')).catch(() => message.error('Failed'));
+  const saveWallpaper = (wallpaperId, price) =>
+    upsertWallpaper({ wallpaperId, price_per_sqft: price }).then(() => message.success('Saved')).catch(() => message.error('Failed'));
   const saveBase = (baseId, price) =>
     upsertBase({ baseId, price_per_sqft: price }).then(() => message.success('Saved')).catch(() => message.error('Failed'));
   const saveThickness = (thicknessId, price) =>
@@ -90,6 +115,28 @@ export default function Pricing() {
             { title: 'Your rate (₹/sq ft)', key: 'price', render: (_, row) => <EditablePrice initial={row.price_per_sqft} onSave={(v) => saveMaterial(row.material_id, v)} /> },
           ]} rowKey="material_id" loading={loadingM} size="small" />
         </Tabs.TabPane>
+        <Tabs.TabPane tab="Material styles" key="material-styles">
+          <Table dataSource={materialStyleList} columns={[
+            { title: 'Style', dataIndex: 'material_style_name', key: 'name' },
+            { title: 'Product Type', dataIndex: 'product_type_name', key: 'pt' },
+            { title: 'Your rate (₹/sq ft)', key: 'price', render: (_, row) => <EditablePrice initial={row.price_per_sqft} onSave={(v) => saveMaterialStyle(row.material_style_id, v)} /> },
+          ]} rowKey="material_style_id" loading={loadingMS} size="small" />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Frames" key="frames">
+          <Table dataSource={frameList} columns={[
+            { title: 'Frame', dataIndex: 'frame_name', key: 'name' },
+            { title: 'Product Type', dataIndex: 'product_type_name', key: 'pt' },
+            { title: 'Your rate (₹/sq ft)', key: 'price', render: (_, row) => <EditablePrice initial={row.price_per_sqft} onSave={(v) => saveFrame(row.frame_id, v)} /> },
+          ]} rowKey="frame_id" loading={loadingFr} size="small" />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Wallpapers" key="wallpapers">
+          <Table dataSource={wallpaperList} columns={[
+            { title: 'Wallpaper', dataIndex: 'wallpaper_name', key: 'name' },
+            { title: 'Type', dataIndex: 'wallpaper_type', key: 'wt', render: (v) => (v ? String(v).charAt(0).toUpperCase() + String(v).slice(1) : '-') },
+            { title: 'Product Type', dataIndex: 'product_type_name', key: 'pt' },
+            { title: 'Your rate (₹/sq ft)', key: 'price', render: (_, row) => <EditablePrice initial={row.price_per_sqft} onSave={(v) => saveWallpaper(row.wallpaper_id, v)} /> },
+          ]} rowKey="wallpaper_id" loading={loadingWp} size="small" />
+        </Tabs.TabPane>
         <Tabs.TabPane tab="Bases" key="bases">
           <Table dataSource={baseList} columns={[
             { title: 'Base', dataIndex: 'base_name', key: 'name' },
@@ -97,13 +144,13 @@ export default function Pricing() {
             { title: 'Your rate (₹/sq ft)', key: 'price', render: (_, row) => <EditablePrice initial={row.price_per_sqft} onSave={(v) => saveBase(row.base_id, v)} /> },
           ]} rowKey="base_id" loading={loadingB} size="small" />
         </Tabs.TabPane>
-        {/* <Tabs.TabPane tab="Thicknesses" key="thicknesses">
+        <Tabs.TabPane tab="Thicknesses" key="thicknesses">
           <Table dataSource={thicknessList} columns={[
             { title: 'Thickness', dataIndex: 'thickness_name', key: 'name' },
             { title: 'Product Type', dataIndex: 'product_type_name', key: 'pt' },
             { title: 'Your rate (₹/sq ft)', key: 'price', render: (_, row) => <EditablePrice initial={row.price_per_sqft} onSave={(v) => saveThickness(row.thickness_id, v)} /> },
           ]} rowKey="thickness_id" loading={loadingT} size="small" />
-        </Tabs.TabPane> */}
+        </Tabs.TabPane>
         <Tabs.TabPane tab="Elements" key="elements">
           <Table dataSource={elList} columns={[
             { title: 'Element', dataIndex: 'element_name', key: 'name' },
