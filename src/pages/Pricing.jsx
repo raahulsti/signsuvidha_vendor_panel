@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Tabs, Table, InputNumber, Button, message, Space, Select } from 'antd';
+import { Tabs, Table, InputNumber, Button, message, Space, Select, Image } from 'antd';
 import {
   useGetMaterialPricingQuery,
   useGetMaterialStylePricingQuery,
   useGetFramePricingQuery,
   useGetWallpaperPricingQuery,
+  useGetAddBorderPricingQuery,
+  useGetLollipopElementPricingQuery,
   useGetBasePricingQuery,
   useGetThicknessPricingQuery,
   useGetElementPricingQuery,
@@ -14,6 +16,8 @@ import {
   useUpsertMaterialStylePriceMutation,
   useUpsertFramePriceMutation,
   useUpsertWallpaperPriceMutation,
+  useUpsertAddBorderPriceMutation,
+  useUpsertLollipopElementPriceMutation,
   useUpsertBasePriceMutation,
   useUpsertThicknessPriceMutation,
   useUpsertElementPriceMutation,
@@ -31,6 +35,20 @@ function EditablePrice({ initial, onSave }) {
   );
 }
 
+function EditableBorderPrices({ initialPrice, initialLitPrice, onSave }) {
+  const [price, setPrice] = useState(initialPrice ?? 0);
+  const [litPrice, setLitPrice] = useState(initialLitPrice ?? 0);
+  return (
+    <Space wrap>
+      <Space.Compact>
+        <InputNumber min={0} step={1} value={price} onChange={setPrice} style={{ width: 100 }} placeholder="Base" />
+        <InputNumber min={0} step={1} value={litPrice} onChange={setLitPrice} style={{ width: 100 }} placeholder="Lit" />
+        <Button size="small" type="primary" onClick={() => onSave(price, litPrice)}>Save</Button>
+      </Space.Compact>
+    </Space>
+  );
+}
+
 export default function Pricing() {
   const [activeTab, setActiveTab] = useState('materials');
   const [fontProductTypeFilter, setFontProductTypeFilter] = useState();
@@ -41,6 +59,8 @@ export default function Pricing() {
   });
   const { data: framesData = [], isLoading: loadingFr } = useGetFramePricingQuery(undefined, { skip: activeTab !== 'frames' });
   const { data: wallpapersData = [], isLoading: loadingWp } = useGetWallpaperPricingQuery(undefined, { skip: activeTab !== 'wallpapers' });
+  const { data: addBordersData = [], isLoading: loadingAb } = useGetAddBorderPricingQuery(undefined, { skip: activeTab !== 'add-borders' });
+  const { data: lollipopElementsData = [], isLoading: loadingLe } = useGetLollipopElementPricingQuery(undefined, { skip: activeTab !== 'lollipop-elements' });
   const { data: basesData = [], isLoading: loadingB } = useGetBasePricingQuery(undefined, { skip: activeTab !== 'bases' });
   const { data: thicknessesData = [], isLoading: loadingT } = useGetThicknessPricingQuery(undefined, { skip: activeTab !== 'thicknesses' });
   const { data: elements = [], isLoading: loadingE } = useGetElementPricingQuery(undefined, { skip: activeTab !== 'elements' });
@@ -56,6 +76,8 @@ export default function Pricing() {
   const [upsertMaterialStyle] = useUpsertMaterialStylePriceMutation();
   const [upsertFrame] = useUpsertFramePriceMutation();
   const [upsertWallpaper] = useUpsertWallpaperPriceMutation();
+  const [upsertAddBorder] = useUpsertAddBorderPriceMutation();
+  const [upsertLollipopElement] = useUpsertLollipopElementPriceMutation();
   const [upsertBase] = useUpsertBasePriceMutation();
   const [upsertThickness] = useUpsertThicknessPriceMutation();
   const [upsertElement] = useUpsertElementPriceMutation();
@@ -66,6 +88,8 @@ export default function Pricing() {
   const materialStyleList = Array.isArray(materialStylesData) ? materialStylesData : materialStylesData?.data ?? [];
   const frameList = Array.isArray(framesData) ? framesData : framesData?.data ?? [];
   const wallpaperList = Array.isArray(wallpapersData) ? wallpapersData : wallpapersData?.data ?? [];
+  const addBorderList = Array.isArray(addBordersData) ? addBordersData : addBordersData?.data ?? [];
+  const lollipopElementList = Array.isArray(lollipopElementsData) ? lollipopElementsData : lollipopElementsData?.data ?? [];
   const baseList = Array.isArray(basesData) ? basesData : basesData?.data ?? [];
   const thicknessList = Array.isArray(thicknessesData) ? thicknessesData : thicknessesData?.data ?? [];
   const elList = Array.isArray(elements) ? elements : elements?.data ?? [];
@@ -81,6 +105,14 @@ export default function Pricing() {
     upsertFrame({ frameId, price_per_sqft: price }).then(() => message.success('Saved')).catch(() => message.error('Failed'));
   const saveWallpaper = (wallpaperId, price) =>
     upsertWallpaper({ wallpaperId, price_per_sqft: price }).then(() => message.success('Saved')).catch(() => message.error('Failed'));
+  const saveAddBorder = (addBorderId, price, lit_price) =>
+    upsertAddBorder({ addBorderId, price, lit_price })
+      .then(() => message.success('Saved'))
+      .catch(() => message.error('Failed'));
+  const saveLollipopElement = (lollipopElementId, price) =>
+    upsertLollipopElement({ lollipopElementId, price })
+      .then(() => message.success('Saved'))
+      .catch(() => message.error('Failed'));
   const saveBase = (baseId, price) =>
     upsertBase({ baseId, price_per_sqft: price }).then(() => message.success('Saved')).catch(() => message.error('Failed'));
   const saveThickness = (thicknessId, price) =>
@@ -136,6 +168,45 @@ export default function Pricing() {
             { title: 'Product Type', dataIndex: 'product_type_name', key: 'pt' },
             { title: 'Your rate (₹/sq ft)', key: 'price', render: (_, row) => <EditablePrice initial={row.price_per_sqft} onSave={(v) => saveWallpaper(row.wallpaper_id, v)} /> },
           ]} rowKey="wallpaper_id" loading={loadingWp} size="small" />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Add borders" key="add-borders">
+          <Table dataSource={addBorderList} columns={[
+            { title: 'Shape', dataIndex: 'shape' },
+            { title: 'Size', dataIndex: 'size' },
+            { title: 'Height', dataIndex: 'add_border_height', render: (v) => v || '-' },
+            { title: 'Width', dataIndex: 'add_border_width', render: (v) => v || '-' },
+            {
+              title: 'Your rates (Price + lit price) (₹) ',
+              key: 'price',
+              render: (_, row) => (
+                <EditableBorderPrices
+                  initialPrice={row.price}
+                  initialLitPrice={row.lit_price}
+                  onSave={(p, lit) => saveAddBorder(row.add_border_id, p, lit)}
+                />
+              ),
+            },
+          ]} rowKey="add_border_id" loading={loadingAb} size="small" />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Lollipop elements" key="lollipop-elements">
+          <Table dataSource={lollipopElementList} columns={[
+            {
+              title: 'Image',
+              key: 'img',
+              width: 72,
+              render: (_, row) => {
+                const url = row.lollipop_element_image || row.lollipop_element_thumbnail_url;
+                return url ? (
+                  <Image src={url} width={44} height={44} style={{ objectFit: 'cover', borderRadius: 6 }} />
+                ) : (
+                  '-'
+                );
+              },
+            },
+            { title: 'Element', dataIndex: 'lollipop_element_name', key: 'name' },
+            { title: 'Admin price (₹)', dataIndex: 'admin_price', render: (v) => Number(v || 0).toFixed(2) },
+            { title: 'Your price (₹)', key: 'price', render: (_, row) => <EditablePrice initial={row.price} onSave={(v) => saveLollipopElement(row.lollipop_element_id, v)} /> },
+          ]} rowKey="lollipop_element_id" loading={loadingLe} size="small" />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Bases" key="bases">
           <Table dataSource={baseList} columns={[

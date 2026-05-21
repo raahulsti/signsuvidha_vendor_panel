@@ -34,6 +34,14 @@ export const vendorApi = createApi({
       query: () => '/vendor/pricing/wallpapers',
       providesTags: ['Pricing'],
     }),
+    getAddBorderPricing: builder.query({
+      query: () => '/vendor/pricing/add-borders',
+      providesTags: ['Pricing'],
+    }),
+    getLollipopElementPricing: builder.query({
+      query: () => '/vendor/pricing/lollipop-elements',
+      providesTags: ['Pricing'],
+    }),
     getBasePricing: builder.query({
       query: () => '/vendor/pricing/bases',
       providesTags: ['Pricing'],
@@ -79,6 +87,22 @@ export const vendorApi = createApi({
         url: `/vendor/pricing/wallpapers/${wallpaperId}`,
         method: 'PUT',
         body: { price_per_sqft },
+      }),
+      invalidatesTags: ['Pricing'],
+    }),
+    upsertAddBorderPrice: builder.mutation({
+      query: ({ addBorderId, price, lit_price }) => ({
+        url: `/vendor/pricing/add-borders/${addBorderId}`,
+        method: 'PUT',
+        body: { price, lit_price },
+      }),
+      invalidatesTags: ['Pricing'],
+    }),
+    upsertLollipopElementPrice: builder.mutation({
+      query: ({ lollipopElementId, price }) => ({
+        url: `/vendor/pricing/lollipop-elements/${lollipopElementId}`,
+        method: 'PUT',
+        body: { price },
       }),
       invalidatesTags: ['Pricing'],
     }),
@@ -156,6 +180,8 @@ export const {
   useGetMaterialStylePricingQuery,
   useGetFramePricingQuery,
   useGetWallpaperPricingQuery,
+  useGetAddBorderPricingQuery,
+  useGetLollipopElementPricingQuery,
   useGetBasePricingQuery,
   useGetThicknessPricingQuery,
   useGetElementPricingQuery,
@@ -164,6 +190,8 @@ export const {
   useUpsertMaterialStylePriceMutation,
   useUpsertFramePriceMutation,
   useUpsertWallpaperPriceMutation,
+  useUpsertAddBorderPriceMutation,
+  useUpsertLollipopElementPriceMutation,
   useUpsertBasePriceMutation,
   useUpsertThicknessPriceMutation,
   useUpsertElementPriceMutation,
