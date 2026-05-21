@@ -7,6 +7,7 @@ import {
   useGetWallpaperPricingQuery,
   useGetAddBorderPricingQuery,
   useGetLollipopElementPricingQuery,
+  useGetPylonCategoryPricingQuery,
   useGetBasePricingQuery,
   useGetThicknessPricingQuery,
   useGetElementPricingQuery,
@@ -18,6 +19,7 @@ import {
   useUpsertWallpaperPriceMutation,
   useUpsertAddBorderPriceMutation,
   useUpsertLollipopElementPriceMutation,
+  useUpsertPylonCategoryPriceMutation,
   useUpsertBasePriceMutation,
   useUpsertThicknessPriceMutation,
   useUpsertElementPriceMutation,
@@ -61,6 +63,7 @@ export default function Pricing() {
   const { data: wallpapersData = [], isLoading: loadingWp } = useGetWallpaperPricingQuery(undefined, { skip: activeTab !== 'wallpapers' });
   const { data: addBordersData = [], isLoading: loadingAb } = useGetAddBorderPricingQuery(undefined, { skip: activeTab !== 'add-borders' });
   const { data: lollipopElementsData = [], isLoading: loadingLe } = useGetLollipopElementPricingQuery(undefined, { skip: activeTab !== 'lollipop-elements' });
+  const { data: pylonCategoriesData = [], isLoading: loadingPc } = useGetPylonCategoryPricingQuery(undefined, { skip: activeTab !== 'pylon-categories' });
   const { data: basesData = [], isLoading: loadingB } = useGetBasePricingQuery(undefined, { skip: activeTab !== 'bases' });
   const { data: thicknessesData = [], isLoading: loadingT } = useGetThicknessPricingQuery(undefined, { skip: activeTab !== 'thicknesses' });
   const { data: elements = [], isLoading: loadingE } = useGetElementPricingQuery(undefined, { skip: activeTab !== 'elements' });
@@ -78,6 +81,7 @@ export default function Pricing() {
   const [upsertWallpaper] = useUpsertWallpaperPriceMutation();
   const [upsertAddBorder] = useUpsertAddBorderPriceMutation();
   const [upsertLollipopElement] = useUpsertLollipopElementPriceMutation();
+  const [upsertPylonCategory] = useUpsertPylonCategoryPriceMutation();
   const [upsertBase] = useUpsertBasePriceMutation();
   const [upsertThickness] = useUpsertThicknessPriceMutation();
   const [upsertElement] = useUpsertElementPriceMutation();
@@ -90,6 +94,7 @@ export default function Pricing() {
   const wallpaperList = Array.isArray(wallpapersData) ? wallpapersData : wallpapersData?.data ?? [];
   const addBorderList = Array.isArray(addBordersData) ? addBordersData : addBordersData?.data ?? [];
   const lollipopElementList = Array.isArray(lollipopElementsData) ? lollipopElementsData : lollipopElementsData?.data ?? [];
+  const pylonCategoryList = Array.isArray(pylonCategoriesData) ? pylonCategoriesData : pylonCategoriesData?.data ?? [];
   const baseList = Array.isArray(basesData) ? basesData : basesData?.data ?? [];
   const thicknessList = Array.isArray(thicknessesData) ? thicknessesData : thicknessesData?.data ?? [];
   const elList = Array.isArray(elements) ? elements : elements?.data ?? [];
@@ -111,6 +116,10 @@ export default function Pricing() {
       .catch(() => message.error('Failed'));
   const saveLollipopElement = (lollipopElementId, price) =>
     upsertLollipopElement({ lollipopElementId, price })
+      .then(() => message.success('Saved'))
+      .catch(() => message.error('Failed'));
+  const savePylonCategory = (pylonCategoryId, category_price, tiles_price) =>
+    upsertPylonCategory({ pylonCategoryId, category_price, tiles_price })
       .then(() => message.success('Saved'))
       .catch(() => message.error('Failed'));
   const saveBase = (baseId, price) =>
@@ -207,6 +216,33 @@ export default function Pricing() {
             { title: 'Admin price (₹)', dataIndex: 'admin_price', render: (v) => Number(v || 0).toFixed(2) },
             { title: 'Your price (₹)', key: 'price', render: (_, row) => <EditablePrice initial={row.price} onSave={(v) => saveLollipopElement(row.lollipop_element_id, v)} /> },
           ]} rowKey="lollipop_element_id" loading={loadingLe} size="small" />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Pylon categories" key="pylon-categories">
+          <Table dataSource={pylonCategoryList} columns={[
+            { title: 'Pylon', dataIndex: 'pylon_name', key: 'pylon' },
+            { title: 'Category', dataIndex: 'category_name', key: 'cat' },
+            { title: 'Tiles', dataIndex: 'tiles_name', key: 'tiles' },
+            {
+              title: 'Category price (₹)',
+              key: 'cat_price',
+              render: (_, row) => (
+                <EditablePrice
+                  initial={row.category_price}
+                  onSave={(v) => savePylonCategory(row.pylon_category_id, v, row.tiles_price ?? 0)}
+                />
+              ),
+            },
+            {
+              title: 'Tile price (₹)',
+              key: 'tile_price',
+              render: (_, row) => (
+                <EditablePrice
+                  initial={row.tiles_price}
+                  onSave={(v) => savePylonCategory(row.pylon_category_id, row.category_price ?? 0, v)}
+                />
+              ),
+            },
+          ]} rowKey="pylon_category_id" loading={loadingPc} size="small" />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Bases" key="bases">
           <Table dataSource={baseList} columns={[

@@ -42,6 +42,10 @@ export const vendorApi = createApi({
       query: () => '/vendor/pricing/lollipop-elements',
       providesTags: ['Pricing'],
     }),
+    getPylonCategoryPricing: builder.query({
+      query: () => '/vendor/pricing/pylon-categories',
+      providesTags: ['Pricing'],
+    }),
     getBasePricing: builder.query({
       query: () => '/vendor/pricing/bases',
       providesTags: ['Pricing'],
@@ -103,6 +107,14 @@ export const vendorApi = createApi({
         url: `/vendor/pricing/lollipop-elements/${lollipopElementId}`,
         method: 'PUT',
         body: { price },
+      }),
+      invalidatesTags: ['Pricing'],
+    }),
+    upsertPylonCategoryPrice: builder.mutation({
+      query: ({ pylonCategoryId, category_price, tiles_price }) => ({
+        url: `/vendor/pricing/pylon-categories/${pylonCategoryId}`,
+        method: 'PUT',
+        body: { category_price, tiles_price },
       }),
       invalidatesTags: ['Pricing'],
     }),
@@ -182,6 +194,7 @@ export const {
   useGetWallpaperPricingQuery,
   useGetAddBorderPricingQuery,
   useGetLollipopElementPricingQuery,
+  useGetPylonCategoryPricingQuery,
   useGetBasePricingQuery,
   useGetThicknessPricingQuery,
   useGetElementPricingQuery,
@@ -192,6 +205,7 @@ export const {
   useUpsertWallpaperPriceMutation,
   useUpsertAddBorderPriceMutation,
   useUpsertLollipopElementPriceMutation,
+  useUpsertPylonCategoryPriceMutation,
   useUpsertBasePriceMutation,
   useUpsertThicknessPriceMutation,
   useUpsertElementPriceMutation,
