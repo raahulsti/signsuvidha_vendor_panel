@@ -4,7 +4,7 @@ import { Layout, Menu, Avatar, Dropdown } from 'antd';
 import { DashboardOutlined, UserOutlined, DollarOutlined, ShoppingOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLogoutMutation } from '../../api/authApi';
-import { logout } from '../../features/auth/authSlice';
+import { clearVendorSession } from '../../utils/session';
 
 const { Header, Sider, Content } = Layout;
 
@@ -24,7 +24,7 @@ export default function VendorLayout() {
   const [logoutApi] = useLogoutMutation();
 
   const handleLogout = async () => {
-    try { await logoutApi(); } finally { dispatch(logout()); navigate('/login'); }
+    try { await logoutApi(); } finally { clearVendorSession(dispatch); navigate('/login'); }
   };
 
   return (

@@ -4,7 +4,8 @@ import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLoginMutation } from '../api/authApi';
-import { logout, setCredentials } from '../features/auth/authSlice';
+import { setCredentials } from '../features/auth/authSlice';
+import { clearVendorSession, resetVendorApiCache } from '../utils/session';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -22,10 +23,11 @@ export default function Login() {
         const roles = Array.isArray(payload.user.roles) ? payload.user.roles : [];
         const canUseVendorPanel = roles.includes('vendor') || roles.includes('super_admin');
         if (!canUseVendorPanel) {
-          dispatch(logout());
+          clearVendorSession(dispatch);
           message.error('This account does not have vendor panel access.');
           return;
         }
+        resetVendorApiCache(dispatch);
         dispatch(setCredentials({ user: payload.user, accessToken: payload.accessToken, refreshToken: payload.refreshToken }));
         message.success('Login successful');
         navigate('/', { replace: true });
