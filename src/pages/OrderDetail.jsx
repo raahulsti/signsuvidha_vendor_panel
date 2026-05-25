@@ -17,6 +17,13 @@ export default function OrderDetail() {
   const order = data?.data ?? data ?? {};
   const items = order.items ?? [];
   const shipping = order.addresses?.shipping;
+  const orderAmounts = {
+    subtotal: order.subtotal ?? order.amounts?.subtotal,
+    gst_percent: order.gst_percent ?? order.amounts?.gst_percent,
+    gst_amount: order.gst_amount ?? order.amounts?.gst_amount,
+    shipping_cost: order.shipping?.cost ?? order.amounts?.shipping_cost,
+    payable_amount: order.payable_amount ?? order.amounts?.payable_amount,
+  };
 
   const handleStatusChange = async (status) => {
     try {
@@ -81,7 +88,9 @@ export default function OrderDetail() {
           <Descriptions.Item label="Email">{order.customer_email || order.customer?.email || '-'}</Descriptions.Item>
           <Descriptions.Item label="Invoice #">{order.invoice_number || '-'}</Descriptions.Item>
           <Descriptions.Item label="Subtotal">{fmt(order.subtotal ?? order.amounts?.subtotal)}</Descriptions.Item>
+          <Descriptions.Item label="GST">{Number(order.gst_percent ?? order.amounts?.gst_percent ?? 0).toFixed(2)}% ({fmt(order.gst_amount ?? order.amounts?.gst_amount)})</Descriptions.Item>
           <Descriptions.Item label="Payable">{fmt(order.payable_amount ?? order.amounts?.payable_amount)}</Descriptions.Item>
+          <Descriptions.Item label="Shipping">{order.shipping?.service_name || '-'} {order.shipping?.cost > 0 ? fmt(order.shipping.cost) : ''}</Descriptions.Item>
           {shipping && (
             <Descriptions.Item label="Ship to" span={2}>{shipping.formatted || `${shipping.full_name}, ${shipping.city}`}</Descriptions.Item>
           )}
@@ -96,7 +105,7 @@ export default function OrderDetail() {
         )}
       </Card>
       <Card title={`Order items (${items.length})`}>
-        <OrderItemsDetail items={items} />
+        <OrderItemsDetail items={items} orderAmounts={orderAmounts} />
       </Card>
       <Modal
         title="Email Invoice"
