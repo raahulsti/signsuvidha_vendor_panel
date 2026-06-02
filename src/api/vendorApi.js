@@ -4,7 +4,7 @@ import { baseQueryWithReauth } from './baseQuery';
 export const vendorApi = createApi({
   reducerPath: 'vendorApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Profile', 'Dashboard', 'Pricing', 'Orders'],
+  tagTypes: ['Profile', 'Dashboard', 'Pricing', 'Orders', 'Customers'],
   endpoints: (builder) => ({
     getProfile: builder.query({
       query: () => '/vendor/profile',
@@ -181,6 +181,18 @@ export const vendorApi = createApi({
     emailOrderInvoice: builder.mutation({
       query: ({ id, email }) => ({ url: `/vendor/orders/${id}/invoice/email`, method: 'POST', body: { email } }),
     }),
+    getCustomers: builder.query({
+      query: (params) => ({ url: '/vendor/customers', params }),
+      providesTags: ['Customers'],
+    }),
+    getCustomer: builder.query({
+      query: (id) => `/vendor/customers/${id}`,
+      providesTags: (_, __, id) => [{ type: 'Customers', id }],
+    }),
+    getCustomerOrders: builder.query({
+      query: ({ id, ...params }) => ({ url: `/vendor/customers/${id}/orders`, params }),
+      providesTags: (_, __, { id }) => [{ type: 'Customers', id: `${id}-orders` }],
+    }),
   }),
 });
 
@@ -216,4 +228,7 @@ export const {
   useGetOrderQuery,
   useUpdateOrderStatusMutation,
   useEmailOrderInvoiceMutation,
+  useGetCustomersQuery,
+  useGetCustomerQuery,
+  useGetCustomerOrdersQuery,
 } = vendorApi;

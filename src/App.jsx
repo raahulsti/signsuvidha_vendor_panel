@@ -7,6 +7,8 @@ import Profile from './pages/Profile';
 import Pricing from './pages/Pricing';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
+import Customers from './pages/Customers';
+import CustomerDetail from './pages/CustomerDetail';
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="pricing" element={<Pricing />} />
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<OrderDetail />} />
+          <Route path="customers" element={<Customers />} />
+          <Route path="customers/:id" element={<CustomerDetail />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

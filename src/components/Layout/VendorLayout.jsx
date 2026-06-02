@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { Layout, Menu, Avatar, Dropdown } from 'antd';
-import { DashboardOutlined, UserOutlined, DollarOutlined, ShoppingOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { DashboardOutlined, UserOutlined, DollarOutlined, ShoppingOutlined, TeamOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLogoutMutation } from '../../api/authApi';
 import { clearVendorSession } from '../../utils/session';
@@ -13,6 +13,7 @@ const menuItems = [
   { key: '/profile', icon: <UserOutlined />, label: <Link to="/profile">Profile</Link> },
   { key: '/pricing', icon: <DollarOutlined />, label: <Link to="/pricing">Pricing</Link> },
   { key: '/orders', icon: <ShoppingOutlined />, label: <Link to="/orders">Orders</Link> },
+  { key: '/customers', icon: <TeamOutlined />, label: <Link to="/customers">Customers</Link> },
 ];
 
 export default function VendorLayout() {
@@ -33,7 +34,18 @@ export default function VendorLayout() {
         <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: collapsed ? 16 : 18, fontWeight: 600 }}>
           {collapsed ? 'SU' : 'SignsUvidha Vendor'}
         </div>
-        <Menu theme="dark" mode="inline" selectedKeys={[location.pathname]} items={menuItems} />
+        <Menu
+          theme="dark"
+          mode="inline"
+          selectedKeys={[
+            location.pathname.startsWith('/orders')
+              ? '/orders'
+              : location.pathname.startsWith('/customers')
+                ? '/customers'
+                : location.pathname,
+          ]}
+          items={menuItems}
+        />
       </Sider>
       <Layout>
         <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
